@@ -119,6 +119,27 @@ unsigned String_length(String s);
 unsigned String_size(String s);
 
 /**
+ * @brief reallocates s so it can hold at least size chars.
+ * @detail if newsize < 2, newsize will be treated as 1 so it can hold
+ * the empty string "".
+ *
+ * @param s
+ * @param newsize new size.
+ *
+ * @return -1 if reallocation failed or the string is non resizable.
+ * @return 0 otherwise.
+ */
+int String_set_size(String s, unsigned newsize);
+
+/**
+ * @brief convenience macro. Shrinks s to a size that can still hold its
+ * raw string.
+ *
+ * @param s String
+ */
+#define String_shrink(s) String_set_size(s, String_length(s))
+
+/**
  * @brief returns the underlaying raw string.
  *
  * @param s String.

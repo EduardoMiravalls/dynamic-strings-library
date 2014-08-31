@@ -192,6 +192,33 @@ void test_format(void)
 #endif
 }
 
+void test_shrink(void)
+{
+	String s;
+	char *alphabet = "abcdefghijklmnopqrstuvwxyz";
+	int i;
+
+	printf("%s: ", __func__);
+
+	s = String_new_str(alphabet);
+
+	for (i = 0; i < 5; i++) {
+		String_cat_str(s, alphabet);
+	}
+
+	String_set_size(s, 7);
+
+	assert(7 == String_size(s));
+	assert(7 == String_length(s));
+
+	String_set_size(s, 0);
+	assert(1 == String_size(s));
+	assert(1 == String_length(s));
+
+	String_free(&s);
+	printf("passed!\n");
+}
+
 #if 0
 void test_(void)
 {
@@ -215,6 +242,7 @@ int main()
 	test_ncat_with_initial_string_empty();
 	test_ncat_with_initial_string();
 	test_format();
+	test_shrink();
 
 	printf("All tests passed!\n");
 	return 0;

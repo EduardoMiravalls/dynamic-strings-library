@@ -140,6 +140,38 @@ unsigned String_size(String s)
 	return s->size;
 }
 
+int String_set_size(String s, unsigned size)
+{
+	void *temp;
+	assert(s != NULL);
+
+	if (!resizable(s)) {
+		return -1;
+	}
+
+	if (size == s->size) { /* no changes */
+		return 0;
+	}
+
+	if (size < 2) {
+		size = 1;
+	}
+
+	if ((temp = realloc(s->raw, size)) == NULL) {
+		return -1;
+	}
+
+	s->size = size;
+	s->raw = temp;
+
+	if (s->len > size) {
+		s->len = size;
+		s->raw[size - 1] = '\0';
+	}
+
+	return 0;
+}
+
 String String_dup_slice(String s, unsigned from, unsigned to)
 {
 	String cpy;
