@@ -1,5 +1,5 @@
 /*
- * File:    String.c
+ * File:    DStrings.c
  * Author:  Eduardo Miravalls Sierra          <edu.miravalls@hotmail.com>
  *
  * Date:    2014-08-30 09:47
@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "String_t.h"
+#include "DStrings.h"
 
 enum {NO = 0, YES};
 

@@ -1,5 +1,5 @@
 /*
- * File:    string_test.c
+ * File:    DStrings_test.c
  * Author:  Eduardo Miravalls Sierra          <edu.miravalls@hotmail.com>
  *
  * Date:    2014-08-30 16:45
@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "String_t.h"
+#include "DStrings.h"
 
 void test_new(void)
 {

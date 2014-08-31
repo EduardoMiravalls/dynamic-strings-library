@@ -1,5 +1,5 @@
 /*
- * File:    String_t.h
+ * File:    DStrings.h
  * Author:  Eduardo Miravalls Sierra          <edu.miravalls@hotmail.com>
  *
  * Date:    2014-08-30 09:47
