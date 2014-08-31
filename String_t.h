@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#include <string.h> /* strlen */
+
 /**
  * @brief opaque data type
  */
@@ -50,6 +52,24 @@ int String_ncpy_at(String dest, unsigned dest_offset,
 #define String_cpy(dest, src) String_ncpy_at(dest, 0, src, String_length(src))
 
 /**
+ * @brief convenience macro.
+ *
+ * @param dest String.
+ * @param src raw string.
+ */
+#define String_cpy_str(dest, src) String_ncpy_at(dest, 0, src, strlen(src))
+
+/**
+ * @brief convenience macro.
+ *
+ * @param dest String.
+ * @param dest_offset first char to be overwritten.
+ * @param src raw string.
+ */
+#define String_cpy_str_at(dest, dest_offset, src) \
+	String_ncpy_at(dest, dest_offset, src, strlen(src))
+
+/**
  * @brief appends n chars to dest from src.
  *
  * @param dest String.
@@ -69,6 +89,14 @@ int String_ncat(String dest,
  * @param src String.
  */
 #define String_cat(dest, src) String_ncat(dest, src, String_length(src))
+
+/**
+ * @brief convenience macro.
+ *
+ * @param dest String.
+ * @param src raw string.
+ */
+#define String_cat_str(dest, src) String_ncat(dest, src, strlen(src))
 
 /**
  * @brief returns the number of chars that s has, including a the
@@ -218,6 +246,18 @@ int String_format_at(String s, unsigned offset, const char *fmt, ...);
  * @return NULL if allocation failed.
  */
 String String_new(const char *src, unsigned n);
+
+/**
+ * @brief convenience macro.
+ *
+ * @param src raw string.
+ */
+#define String_new_str(src) String_new(src, strlen(src))
+
+/**
+ * @brief convenience macro.
+ */
+#define String_new_empty() String_new((void *)0x0, 0)
 
 /**
  * @brief allocates a new String using src as its raw string.

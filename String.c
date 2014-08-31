@@ -7,7 +7,6 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <string.h> /* memmove */
 
 #include "String_t.h"
 

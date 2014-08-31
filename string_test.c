@@ -19,7 +19,7 @@ void test_new(void)
 
 	printf("%s: ", __func__);
 
-	s = String_new(src, strlen(src));
+	s = String_new_str(src);
 	assert(0 == strcmp(String_raw(s), src));
 	assert(String_length(s) == (strlen(src) + 1));
 
@@ -36,7 +36,7 @@ void test_ncpy(void)
 
 	printf("%s: ", __func__);
 
-	s1 = String_new(NULL, strlen(str));
+	s1 = String_new_empty();
 	s2 = String_new_steal(str, 0);
 
 	String_ncpy(s1, String_raw(s2), n);
@@ -74,7 +74,7 @@ void test_ncpy_overlapping(void)
 
 	printf("%s: ", __func__);
 
-	s = String_new(str, strlen(str));
+	s = String_new_str(str);
 
 	String_ncpy_at(s, 6, String_raw(s), String_length(s) - 1);
 	assert(0 == strcmp(String_raw(s), "Hello Hello World!\n"));
@@ -94,7 +94,7 @@ void test_ncpy_gap(void)
 
 	printf("%s: ", __func__);
 
-	s = String_new(greeting, strlen(greeting));
+	s = String_new_str(greeting);
 
 	String_ncpy_at(s, 16, String_raw(s), String_length(s) - 1);
 	assert(0 == strcmp(String_raw(s), greeting));
@@ -116,13 +116,13 @@ void test_ncat_with_initial_string_empty(void)
 
 	printf("%s: ", __func__);
 
-	s = String_new(NULL, strlen(greeting));
+	s = String_new_empty();
 
 	for (i = 0; i < n; i++) {
-		String_ncat(s, greeting, greeting_len);
+		String_cat_str(s, greeting);
 	}
 
-	assert(greeting_len * n + 1 == String_length(s));
+	assert((greeting_len * n + 1) == String_length(s));
 
 	for (i = 0; i < n; i++) {
 		assert(0 == memcmp(String_raw(s) + greeting_len * i,
@@ -144,13 +144,13 @@ void test_ncat_with_initial_string(void)
 
 	printf("%s: ", __func__);
 
-	s = String_new(greeting, strlen(greeting));
+	s = String_new_str(greeting);
 
 	for (i = 0; i < (n - 1); i++) {
-		String_ncat(s, greeting, greeting_len);
+		String_cat_str(s, greeting);
 	}
 
-	assert(greeting_len * n + 1 == String_length(s));
+	assert((greeting_len * n + 1) == String_length(s));
 
 	for (i = 0; i < n; i++) {
 		assert(0 == memcmp(String_raw(s) + greeting_len * i,
@@ -172,7 +172,7 @@ void test_format(void)
 
 #if _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
 
-	s = String_new(NULL, 0);
+	s = String_new_empty();
 
 	String_format(s, "%s!\n", str);
 	assert(0 == strcmp(String_raw(s), full_str));
