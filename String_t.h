@@ -179,6 +179,35 @@ int String_ncmp(String s1, String s2, unsigned n);
  */
 #define String_equals(s1, s2) String_nequals(s1, s2, (unsigned)-1)
 
+
+#if _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+
+/**
+ * @brief write the conversion output of fmt in s.
+ * @details if offset > s' length, the gap will be filled with zeros.
+ *
+ * @param s String
+ * @param offset first byte of s to be overwritten.
+ * @param fmt printf-like format string.
+ * @param ... additional arguments
+ *
+ * @return -1 if an error occurred. The content of s' raw string will be
+ * undefined.
+ * @return 0, everything went ok.
+ */
+int String_format_at(String s, unsigned offset, const char *fmt, ...);
+
+/**
+ * @brief convenience macro.
+ *
+ * @param s String
+ * @param fmt printf-like format string.
+ * @param ... additional arguments
+ */
+#define String_format(s, fmt, ...) String_format_at(s, 0, fmt, __VA_ARGS__)
+
+#endif
+
 /**
  * @brief allocates a new String and copies upto n chars of src.
  *

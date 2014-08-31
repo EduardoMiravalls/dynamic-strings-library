@@ -162,6 +162,36 @@ void test_ncat_with_initial_string(void)
 	printf("passed!\n");
 }
 
+void test_format(void)
+{
+	String s;
+	char *str = "Hello World";
+	char *full_str = "Hello World!\n";
+
+	printf("%s: ", __func__);
+
+#if _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+
+	s = String_new(NULL, 0);
+
+	String_format(s, "%s!\n", str);
+	assert(0 == strcmp(String_raw(s), full_str));
+	assert((strlen(full_str) + 1) == String_length(s));
+
+	String_format_at(s, strlen("Hello"), "%c, %s", 0x0, full_str);
+	assert(0 == strcmp(String_raw(s), "Hello"));
+	assert((strlen("Hello") + 1 + strlen(full_str) + strlen(", ") + 1) ==
+	       String_length(s));
+	String_free(&s);
+	printf("passed!\n");
+
+#else
+
+	printf("skipped.\n");
+
+#endif
+}
+
 #if 0
 void test_(void)
 {
@@ -184,6 +214,7 @@ int main()
 	test_ncpy_gap();
 	test_ncat_with_initial_string_empty();
 	test_ncat_with_initial_string();
+	test_format();
 
 	printf("All tests passed!\n");
 	return 0;

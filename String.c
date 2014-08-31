@@ -35,13 +35,27 @@ static String String_alloc(void);
  * variable.
  *
  * @param s String.
- * @param n new minimum capacity.
+ * @param size new minimum capacity.
  *
  * @return NULL on error or if s is not resizable.
  * @return if s' old raw string was NULL, the newly allocated buffer.
  * @return the old raw string otherwise.
  */
 static char *resize(String s, unsigned n);
+
+/**
+ * @brief resizes s so it can hold at least n chars and copies upto offset
+ * bytes from old to new, depending on s->len.
+ *
+ * @param s String.
+ * @param size new minimum capacity.
+ * @param offset of the first byte that should be left uninitialized.
+ *
+ * @return NULL on error or if s is not resizable.
+ * @return if s' old raw string was NULL, the newly allocated buffer.
+ * @return the old raw string otherwise.
+ */
+static char *resize_and_cpy(String s, unsigned n, unsigned offset);
 
 /**
  * @brief the name says exactly what it does.
@@ -74,28 +88,10 @@ int String_ncpy_at(String dest, unsigned dest_offset,
 	assert(src != NULL || n == 0);
 
 	if (dest->size < (dest_offset + n + 1)) {
-		if ((old_raw = resize(dest, dest_offset + n + 1)) == NULL) {
+		old_raw = resize_and_cpy(dest, dest_offset + n + 1, dest_offset);
+
+		if (NULL == old_raw) {
 			return -1;
-		}
-
-		/*
-		 * raw[len] is uninitialized because len == (strlen(raw) + 1), so
-		 *
-		 * if len == offset:
-		 *     means len bytes will be kept untouched.
-		 *
-		 * if len < offset:
-		 *     means len bytes will be kept untouched and (offset - len) bytes
-		 *     have to be zeroed.
-		 *
-		 * if len > offset:
-		 *     means that offset bytes will be kept untouched.
-		 */
-		if (dest->len <= dest_offset) {
-			memmove(dest->raw, old_raw, dest->len);
-
-		} else {
-			memmove(dest->raw, old_raw, dest_offset);
 		}
 
 		if (old_raw == dest->raw) {
@@ -103,6 +99,11 @@ int String_ncpy_at(String dest, unsigned dest_offset,
 		}
 	}
 
+	/*
+	 * if len < offset:
+	 *     means len bytes will be kept untouched and (offset - len) bytes
+	 *     have to be zeroed.
+	 */
 	if (dest->len < dest_offset) {
 		memset(dest->raw + dest->len, 0, dest_offset - dest->len);
 	}
@@ -227,6 +228,61 @@ void String_free(String *s)
 	}
 }
 
+#if _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+
+#include <stdio.h>
+#include <stdarg.h>
+
+int String_format_at(String s, unsigned offset, const char *fmt, ...)
+{
+	void *old_raw;
+	va_list vargs;
+	unsigned bytes_written;
+
+	assert(s != NULL);
+	assert(fmt != NULL);
+
+	/* let's see if we're lucky */
+	va_start(vargs, fmt);
+	bytes_written = vsnprintf(s->raw + offset, s->size - offset, fmt, vargs) + 1;
+	va_end(vargs);
+
+	if (bytes_written > s->size) {
+		/* ops */
+		old_raw = resize_and_cpy(s, offset + bytes_written + 1, offset);
+
+		if (NULL == old_raw) {
+			return -1;
+		}
+
+		free(old_raw);
+
+		/*
+		 * if len < offset:
+		 *     means len bytes will be kept untouched and (offset - len) bytes
+		 *     have to be zeroed.
+		 */
+		if (s->len < offset) {
+			memset(s->raw + s->len, 0, offset - s->len);
+		}
+
+		/* ok, second try... */
+		va_start(vargs, fmt);
+		bytes_written = vsnprintf(s->raw + offset, s->size - offset, fmt, vargs) + 1;
+		va_end(vargs);
+
+		if (bytes_written > s->size) {
+			/* uh!? */
+			return -1;
+		}
+	}
+
+	s->len = offset + bytes_written;
+	return 0;
+}
+
+#endif
+
 static String String_alloc(void)
 {
 	String s;
@@ -275,6 +331,37 @@ static char *resize(String s, unsigned size)
 
 	if (old_raw == NULL) {
 		return s->raw;
+	}
+
+	return old_raw;
+}
+
+static char *resize_and_cpy(String s, unsigned size, unsigned offset)
+{
+	char *old_raw;
+
+	if ((old_raw = resize(s, size)) == NULL) {
+		return NULL;
+	}
+
+	/*
+	 * raw[len] is uninitialized because len == (strlen(raw) + 1), so
+	 *
+	 * if len == offset:
+	 *     means len bytes will be kept untouched.
+	 *
+	 * if len < offset:
+	 *     means len bytes will be kept untouched and (offset - len) bytes
+	 *     have to be zeroed.
+	 *
+	 * if len > offset:
+	 *     means that offset bytes will be kept untouched.
+	 */
+	if (s->len <= offset) {
+		memmove(s->raw, old_raw, s->len);
+
+	} else {
+		memmove(s->raw, old_raw, offset);
 	}
 
 	return old_raw;
