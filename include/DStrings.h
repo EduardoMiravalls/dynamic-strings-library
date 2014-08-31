@@ -25,8 +25,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _STRING_H_
-#define _STRING_H_
+#ifndef _DSTRINGS_H_
+#define _DSTRINGS_H_
 
 #ifdef  __cplusplus
 extern "C" {
@@ -324,5 +324,5 @@ void String_free(String *s);
 }
 #endif
 
-#endif /* _STRING_H_ */
+#endif /* _DSTRINGS_H_ */
 
