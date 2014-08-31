@@ -3,6 +3,8 @@
  * Author:  Eduardo Miravalls Sierra          <edu.miravalls@hotmail.com>
  *
  * Date:    2014-08-30 09:47
+ *
+ * Library to handle dynamic strings.
  */
 
 #ifndef _STRING_H_
