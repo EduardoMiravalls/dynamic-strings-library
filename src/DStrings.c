@@ -116,15 +116,6 @@ int String_ncpy_at(String dest, unsigned dest_offset,
 		}
 	}
 
-	/*
-	 * if len < offset:
-	 *     means len bytes will be kept untouched and (offset - len) bytes
-	 *     have to be zeroed.
-	 */
-	if (dest->len < dest_offset) {
-		memset(dest->raw + dest->len, 0, dest_offset - dest->len);
-	}
-
 	memmove(dest->raw + dest_offset, src, n);
 	dest->len = n + dest_offset + 1;
 	dest->raw[n + dest_offset] = '\0';
@@ -306,15 +297,6 @@ int String_format_at(String s, unsigned offset, const char *fmt, ...)
 
 		free(old_raw);
 
-		/*
-		 * if len < offset:
-		 *     means len bytes will be kept untouched and (offset - len) bytes
-		 *     have to be zeroed.
-		 */
-		if (s->len < offset) {
-			memset(s->raw + s->len, 0, offset - s->len);
-		}
-
 		/* ok, second try... */
 		va_start(vargs, fmt);
 		bytes_written = vsnprintf(s->raw + offset, s->size - offset, fmt, vargs) + 1;
@@ -406,11 +388,15 @@ static char *resize_and_cpy(String s, unsigned size, unsigned offset)
 	 * if len > offset:
 	 *     means that offset bytes will be kept untouched.
 	 */
-	if (s->len <= offset) {
-		memmove(s->raw, old_raw, s->len);
+	if (s->len > offset) {
+		memmove(s->raw, old_raw, offset);
 
 	} else {
-		memmove(s->raw, old_raw, offset);
+		memmove(s->raw, old_raw, s->len);
+
+		if (s->len < offset) {
+			memset(s->raw + s->len, 0, offset - s->len);
+		}
 	}
 
 	return old_raw;
