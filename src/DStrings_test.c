@@ -210,6 +210,35 @@ void test_format(void)
 #endif
 }
 
+void test_format_offset_gt_size(void)
+{
+	String s;
+	char *str = "Hello World";
+	char *full_str = "Hello World!\n";
+
+	printf("%s: ", __func__);
+
+#if _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+
+	s = String_new_empty();
+
+	String_format(s, "%s!\n", str);
+	assert(0 == strcmp(String_raw(s), full_str));
+	assert((strlen(full_str) + 1) == String_length(s));
+
+	String_format_at(s, 100, "%c, %s", 0x0, full_str);
+	assert(0 == strcmp(String_raw(s), full_str));
+	assert((100 + strlen("-, ") + strlen(full_str) + 1) == String_length(s));
+	String_free(&s);
+	printf("passed!\n");
+
+#else
+
+	printf("skipped.\n");
+
+#endif
+}
+
 void test_shrink(void)
 {
 	String s;
@@ -260,6 +289,7 @@ int main()
 	test_ncat_with_initial_string_empty();
 	test_ncat_with_initial_string();
 	test_format();
+	test_format_offset_gt_size();
 	test_shrink();
 
 	printf("All tests passed!\n");

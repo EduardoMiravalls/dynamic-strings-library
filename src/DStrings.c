@@ -282,6 +282,16 @@ int String_format_at(String s, unsigned offset, const char *fmt, ...)
 	assert(s != NULL);
 	assert(fmt != NULL);
 
+	if (offset >= s->size) {
+		unsigned temp = round_up_to_the_next_power_of_2(offset);
+
+		if ((old_raw = resize_and_cpy(s, temp, offset)) == NULL) {
+			return -1;
+		}
+
+		free(old_raw);
+	}
+
 	/* let's see if we're lucky */
 	va_start(vargs, fmt);
 	bytes_written = vsnprintf(s->raw + offset, s->size - offset, fmt, vargs) + 1;
