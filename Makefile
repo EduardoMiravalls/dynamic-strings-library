@@ -31,6 +31,7 @@ BINDIR := bin
 
 SRC := src/DStrings.c
 OBJ := $(patsubst $(SRCDIR)/%, $(OBJDIR)/%, $(SRC:.c=.o))
+DEP_FILES :=$(shell find $(OBJDIR) -type f -name '*.d')
 
 .PHONY: all dirs makelib clean tests
 
@@ -49,7 +50,7 @@ makelib:	$(OBJ)
 
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
 	@echo "#------------------------------"
-	$(CC) $(CFLAGS) -MMD -MP -c $^ -o $@
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 
 
 tests:	CFLAGS += -g
@@ -66,3 +67,5 @@ clean:
 	@find $(LIBDIR) -type f -delete
 	@find $(BINDIR) -type f -delete
 	@find . -type f -name '*~'
+
+-include $(DEP_FILES)
